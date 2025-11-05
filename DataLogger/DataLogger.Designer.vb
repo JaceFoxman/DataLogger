@@ -26,20 +26,23 @@ Partial Class DataLogger
         Me.PictureBox1 = New System.Windows.Forms.PictureBox()
         Me.TopMenuStrip = New System.Windows.Forms.MenuStrip()
         Me.FileToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ExitToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.EditToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StartToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.SaveToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
+        Me.StopToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
         Me.HelpToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.RightClickContextMenuStrip = New System.Windows.Forms.ContextMenuStrip(Me.components)
         Me.StartToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StopToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.SaveToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
-        Me.ExitToolStripMenuItem1 = New System.Windows.Forms.ToolStripMenuItem()
-        Me.AboutToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
         Me.StartButton = New System.Windows.Forms.Button()
         Me.ButtonGroupBox = New System.Windows.Forms.GroupBox()
-        Me.StopButton = New System.Windows.Forms.Button()
-        Me.SaveButton = New System.Windows.Forms.Button()
         Me.ExitButton = New System.Windows.Forms.Button()
+        Me.SaveButton = New System.Windows.Forms.Button()
+        Me.StopButton = New System.Windows.Forms.Button()
         Me.StatusStrip = New System.Windows.Forms.StatusStrip()
         Me.LogFilePathToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
         Me.SamplingRateToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
@@ -47,11 +50,18 @@ Partial Class DataLogger
         Me.Connect_Button = New System.Windows.Forms.Button()
         Me.COMPort_ComboBox = New System.Windows.Forms.ComboBox()
         Me.SerialPort = New System.IO.Ports.SerialPort(Me.components)
+        Me.SampleRateTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.SampleRateComboBox = New System.Windows.Forms.ComboBox()
+        Me.SampleRateGroupBox = New System.Windows.Forms.GroupBox()
+        Me.MinutesRadioButton = New System.Windows.Forms.RadioButton()
+        Me.SecondsRadioButton = New System.Windows.Forms.RadioButton()
+        Me.MiliSecondsRadioButton = New System.Windows.Forms.RadioButton()
         CType(Me.PictureBox1, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TopMenuStrip.SuspendLayout()
         Me.RightClickContextMenuStrip.SuspendLayout()
         Me.ButtonGroupBox.SuspendLayout()
         Me.StatusStrip.SuspendLayout()
+        Me.SampleRateGroupBox.SuspendLayout()
         Me.SuspendLayout()
         '
         'PictureBox1
@@ -81,11 +91,36 @@ Partial Class DataLogger
         Me.FileToolStripMenuItem.Size = New System.Drawing.Size(54, 29)
         Me.FileToolStripMenuItem.Text = "&File"
         '
+        'ExitToolStripMenuItem1
+        '
+        Me.ExitToolStripMenuItem1.Name = "ExitToolStripMenuItem1"
+        Me.ExitToolStripMenuItem1.Size = New System.Drawing.Size(141, 34)
+        Me.ExitToolStripMenuItem1.Text = "&Exit"
+        '
         'EditToolStripMenuItem
         '
+        Me.EditToolStripMenuItem.DropDownItems.AddRange(New System.Windows.Forms.ToolStripItem() {Me.StartToolStripMenuItem1, Me.SaveToolStripMenuItem1, Me.StopToolStripMenuItem1})
         Me.EditToolStripMenuItem.Name = "EditToolStripMenuItem"
         Me.EditToolStripMenuItem.Size = New System.Drawing.Size(58, 29)
         Me.EditToolStripMenuItem.Text = "&Edit"
+        '
+        'StartToolStripMenuItem1
+        '
+        Me.StartToolStripMenuItem1.Name = "StartToolStripMenuItem1"
+        Me.StartToolStripMenuItem1.Size = New System.Drawing.Size(151, 34)
+        Me.StartToolStripMenuItem1.Text = "Start"
+        '
+        'SaveToolStripMenuItem1
+        '
+        Me.SaveToolStripMenuItem1.Name = "SaveToolStripMenuItem1"
+        Me.SaveToolStripMenuItem1.Size = New System.Drawing.Size(151, 34)
+        Me.SaveToolStripMenuItem1.Text = "Save"
+        '
+        'StopToolStripMenuItem1
+        '
+        Me.StopToolStripMenuItem1.Name = "StopToolStripMenuItem1"
+        Me.StopToolStripMenuItem1.Size = New System.Drawing.Size(151, 34)
+        Me.StopToolStripMenuItem1.Text = "Stop"
         '
         'HelpToolStripMenuItem
         '
@@ -93,6 +128,12 @@ Partial Class DataLogger
         Me.HelpToolStripMenuItem.Name = "HelpToolStripMenuItem"
         Me.HelpToolStripMenuItem.Size = New System.Drawing.Size(65, 29)
         Me.HelpToolStripMenuItem.Text = "&Help"
+        '
+        'AboutToolStripMenuItem
+        '
+        Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
+        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(164, 34)
+        Me.AboutToolStripMenuItem.Text = "About"
         '
         'RightClickContextMenuStrip
         '
@@ -125,18 +166,6 @@ Partial Class DataLogger
         Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(121, 32)
         Me.ExitToolStripMenuItem.Text = "Exit"
         '
-        'ExitToolStripMenuItem1
-        '
-        Me.ExitToolStripMenuItem1.Name = "ExitToolStripMenuItem1"
-        Me.ExitToolStripMenuItem1.Size = New System.Drawing.Size(270, 34)
-        Me.ExitToolStripMenuItem1.Text = "&Exit"
-        '
-        'AboutToolStripMenuItem
-        '
-        Me.AboutToolStripMenuItem.Name = "AboutToolStripMenuItem"
-        Me.AboutToolStripMenuItem.Size = New System.Drawing.Size(270, 34)
-        Me.AboutToolStripMenuItem.Text = "About"
-        '
         'StartButton
         '
         Me.StartButton.Location = New System.Drawing.Point(11, 25)
@@ -158,14 +187,14 @@ Partial Class DataLogger
         Me.ButtonGroupBox.TabIndex = 3
         Me.ButtonGroupBox.TabStop = False
         '
-        'StopButton
+        'ExitButton
         '
-        Me.StopButton.Location = New System.Drawing.Point(11, 124)
-        Me.StopButton.Name = "StopButton"
-        Me.StopButton.Size = New System.Drawing.Size(93, 75)
-        Me.StopButton.TabIndex = 3
-        Me.StopButton.Text = "Stop"
-        Me.StopButton.UseVisualStyleBackColor = True
+        Me.ExitButton.Location = New System.Drawing.Point(110, 124)
+        Me.ExitButton.Name = "ExitButton"
+        Me.ExitButton.Size = New System.Drawing.Size(93, 75)
+        Me.ExitButton.TabIndex = 5
+        Me.ExitButton.Text = "Exit"
+        Me.ExitButton.UseVisualStyleBackColor = True
         '
         'SaveButton
         '
@@ -176,14 +205,14 @@ Partial Class DataLogger
         Me.SaveButton.Text = "Save"
         Me.SaveButton.UseVisualStyleBackColor = True
         '
-        'ExitButton
+        'StopButton
         '
-        Me.ExitButton.Location = New System.Drawing.Point(110, 124)
-        Me.ExitButton.Name = "ExitButton"
-        Me.ExitButton.Size = New System.Drawing.Size(93, 75)
-        Me.ExitButton.TabIndex = 5
-        Me.ExitButton.Text = "Exit"
-        Me.ExitButton.UseVisualStyleBackColor = True
+        Me.StopButton.Location = New System.Drawing.Point(11, 124)
+        Me.StopButton.Name = "StopButton"
+        Me.StopButton.Size = New System.Drawing.Size(93, 75)
+        Me.StopButton.TabIndex = 3
+        Me.StopButton.Text = "Stop"
+        Me.StopButton.UseVisualStyleBackColor = True
         '
         'StatusStrip
         '
@@ -235,11 +264,72 @@ Partial Class DataLogger
         Me.COMPort_ComboBox.Size = New System.Drawing.Size(133, 31)
         Me.COMPort_ComboBox.TabIndex = 5
         '
+        'SerialPort
+        '
+        '
+        'SampleRateTimer
+        '
+        '
+        'SampleRateComboBox
+        '
+        Me.SampleRateComboBox.FormattingEnabled = True
+        Me.SampleRateComboBox.Location = New System.Drawing.Point(174, 459)
+        Me.SampleRateComboBox.Name = "SampleRateComboBox"
+        Me.SampleRateComboBox.Size = New System.Drawing.Size(245, 28)
+        Me.SampleRateComboBox.TabIndex = 7
+        '
+        'SampleRateGroupBox
+        '
+        Me.SampleRateGroupBox.Controls.Add(Me.MiliSecondsRadioButton)
+        Me.SampleRateGroupBox.Controls.Add(Me.SecondsRadioButton)
+        Me.SampleRateGroupBox.Controls.Add(Me.MinutesRadioButton)
+        Me.SampleRateGroupBox.Location = New System.Drawing.Point(443, 465)
+        Me.SampleRateGroupBox.Name = "SampleRateGroupBox"
+        Me.SampleRateGroupBox.Size = New System.Drawing.Size(200, 174)
+        Me.SampleRateGroupBox.TabIndex = 8
+        Me.SampleRateGroupBox.TabStop = False
+        Me.SampleRateGroupBox.Text = "Sample Rate Select"
+        '
+        'MinutesRadioButton
+        '
+        Me.MinutesRadioButton.AutoSize = True
+        Me.MinutesRadioButton.Location = New System.Drawing.Point(6, 40)
+        Me.MinutesRadioButton.Name = "MinutesRadioButton"
+        Me.MinutesRadioButton.Size = New System.Drawing.Size(90, 24)
+        Me.MinutesRadioButton.TabIndex = 0
+        Me.MinutesRadioButton.TabStop = True
+        Me.MinutesRadioButton.Text = "Minutes"
+        Me.MinutesRadioButton.UseVisualStyleBackColor = True
+        '
+        'SecondsRadioButton
+        '
+        Me.SecondsRadioButton.AutoSize = True
+        Me.SecondsRadioButton.Location = New System.Drawing.Point(6, 85)
+        Me.SecondsRadioButton.Name = "SecondsRadioButton"
+        Me.SecondsRadioButton.Size = New System.Drawing.Size(97, 24)
+        Me.SecondsRadioButton.TabIndex = 1
+        Me.SecondsRadioButton.TabStop = True
+        Me.SecondsRadioButton.Text = "Seconds"
+        Me.SecondsRadioButton.UseVisualStyleBackColor = True
+        '
+        'MiliSecondsRadioButton
+        '
+        Me.MiliSecondsRadioButton.AutoSize = True
+        Me.MiliSecondsRadioButton.Location = New System.Drawing.Point(6, 124)
+        Me.MiliSecondsRadioButton.Name = "MiliSecondsRadioButton"
+        Me.MiliSecondsRadioButton.Size = New System.Drawing.Size(116, 24)
+        Me.MiliSecondsRadioButton.TabIndex = 2
+        Me.MiliSecondsRadioButton.TabStop = True
+        Me.MiliSecondsRadioButton.Text = "Miliseconds"
+        Me.MiliSecondsRadioButton.UseVisualStyleBackColor = True
+        '
         'DataLogger
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(866, 690)
+        Me.Controls.Add(Me.SampleRateGroupBox)
+        Me.Controls.Add(Me.SampleRateComboBox)
         Me.Controls.Add(Me.Connect_Button)
         Me.Controls.Add(Me.COMPort_ComboBox)
         Me.Controls.Add(Me.StatusStrip)
@@ -256,6 +346,8 @@ Partial Class DataLogger
         Me.ButtonGroupBox.ResumeLayout(False)
         Me.StatusStrip.ResumeLayout(False)
         Me.StatusStrip.PerformLayout()
+        Me.SampleRateGroupBox.ResumeLayout(False)
+        Me.SampleRateGroupBox.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -285,4 +377,13 @@ Partial Class DataLogger
     Friend WithEvents Connect_Button As Button
     Friend WithEvents COMPort_ComboBox As ComboBox
     Friend WithEvents SerialPort As IO.Ports.SerialPort
+    Friend WithEvents StartToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents SaveToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents StopToolStripMenuItem1 As ToolStripMenuItem
+    Friend WithEvents SampleRateTimer As Timer
+    Friend WithEvents SampleRateComboBox As ComboBox
+    Friend WithEvents SampleRateGroupBox As GroupBox
+    Friend WithEvents MiliSecondsRadioButton As RadioButton
+    Friend WithEvents SecondsRadioButton As RadioButton
+    Friend WithEvents MinutesRadioButton As RadioButton
 End Class

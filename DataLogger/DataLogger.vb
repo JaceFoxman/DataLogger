@@ -8,6 +8,8 @@
 Option Strict On
 Option Explicit On
 Option Compare Text
+Imports System.IO.Ports 'Import Serial Port Namespace
+
 Public Class DataLogger
     'Initialize Form -------------------------------------------------------------------------------------
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -23,6 +25,16 @@ Public Class DataLogger
             'No COM Ports found
             MessageBox.Show("No COM Ports found. Please connect the Q@ Board and restart the application.")
         End Try
+        SecondsRadioButton.Checked = True 'Set default time unit to seconds
+        MinutesRadioButton.Checked = False
+        MiliSecondsRadioButton.Checked = False
+
+        SampleRateComboBox.Items.Add("1 Second")
+        SampleRateComboBox.Items.Add("5 Seconds")
+        SampleRateComboBox.Items.Add("10 Seconds")
+        SampleRateComboBox.Items.Add("30 Seconds")
+        SampleRateComboBox.SelectedIndex = 0 'Set default sample rate to 1 second
+
     End Sub
     'Serial Connection -----------------------------------------------------------------------------------
     ''' <summary>
@@ -49,20 +61,54 @@ Public Class DataLogger
             Return
         End Try
     End Sub
+    'Sample Rate ----------------------------------------------------------------------------------------
+    Private Sub SerialPort_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort.DataReceived
+        CheckForIllegalCrossThreadCalls = False 'disable cross-thread checking
+        Dim incomingData As Integer = SerialPort.BytesToRead 'get number of bytes to read
+    End Sub
+    Private Sub SampleRateTimer_Tick(sender As Object, e As EventArgs) Handles SampleRateTimer.Tick
+
+    End Sub
     'Event Handlers -------------------------------------------------------------------------------------
     Private Sub ExitButton_Click(sender As Object, e As EventArgs) Handles ExitButton.Click
+        SerialPort.Close() 'Close Serial Port
         Me.Close()
     End Sub
-
     Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
 
     End Sub
-
     Private Sub SaveButton_Click(sender As Object, e As EventArgs) Handles SaveButton.Click
 
     End Sub
-
     Private Sub StartButton_Click(sender As Object, e As EventArgs) Handles StartButton.Click
 
+    End Sub
+    'Menu Items --------------------------------------------------------------------------------------
+    Private Sub ExitToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem1.Click
+        SerialPort.Close() 'Close Serial Port
+        Me.Close()
+    End Sub
+    Private Sub StartToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles StartToolStripMenuItem1.Click
+
+    End Sub
+    Private Sub SaveToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem1.Click
+
+    End Sub
+    Private Sub StopToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles StopToolStripMenuItem1.Click
+
+    End Sub
+    'Context Menu Items --------------------------------------------------------------------------------
+    Private Sub StartToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartToolStripMenuItem.Click
+
+    End Sub
+    Private Sub StopToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StopToolStripMenuItem.Click
+
+    End Sub
+    Private Sub SaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
+
+    End Sub
+    Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
+        SerialPort.Close() 'Close Serial Port
+        Me.Close()
     End Sub
 End Class
