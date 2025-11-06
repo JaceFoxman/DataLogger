@@ -64,6 +64,8 @@ Public Class DataLogger
                 StartButton.Enabled = True
                 StartToolStripMenuItem1.Enabled = True
                 StartToolStripMenuItem.Enabled = True
+                StatusPictureBox.BackColor = Color.Lime 'Change status indicator to green
+                'CheckCOMTimer.Enabled = True
                 'SampleRateTimer.Enabled = True 'Enable Sample Rate Timer
                 'CommandTimer.Enabled = True 'Enable Command Timer
             End If
@@ -74,17 +76,29 @@ Public Class DataLogger
             Return
         End Try
     End Sub
+
     'Graphing Analog Data-------------------------------------------------------------------------------
     Sub GetData(analogValue As Integer)
         Dim _last%
+        Dim dequeueStart As Integer
         _last = analogValue
+
         'If Me.DataBuffer.Count > 0 Then
         '    _last = Me.DataBuffer.Last
         'Else
         '    _last = analogValue
         'End If
+        If MinutesRadioButton.Checked = True Then
+            dequeueStart = 60
+        ElseIf SecondsRadioButton.Checked = True Then
+            dequeueStart = 100
+        ElseIf MiliSecondsRadioButton.Checked = True Then
+            dequeueStart = 1000
+        Else
+            dequeueStart = 100
+        End If
 
-        If Me.DataBuffer.Count >= 500 Then 'keep the queue trimmed to graph x length
+        If Me.DataBuffer.Count >= dequeueStart Then 'keep the queue trimmed to graph x length
             Me.DataBuffer.Dequeue()
         End If
 
@@ -106,30 +120,57 @@ Public Class DataLogger
         Dim x = -1
         For Each analogDataY In Me.DataBuffer.Reverse
             x += 1
-            'g.DrawLine(eraser, x, 0, x, Me.DataBuffer.Count)
+            g.DrawLine(eraser, x, 0, x, Me.DataBuffer.Count)
             g.DrawLine(pen, x - 1, oldY, x, analogDataY)
             oldY = analogDataY
         Next
 
         g.Dispose()
         pen.Dispose()
-        'eraser.Dispose()
+        eraser.Dispose()
     End Sub
     'Sample Rate ----------------------------------------------------------------------------------------
     Private Sub CommandTimer_Tick(sender As Object, e As EventArgs) Handles CommandTimer.Tick
         Dim command As Byte() = New Byte(0) {}
-        If SerialPort.IsOpen Then
-            command(0) = &H51 'Command to request data from Analog inputs of the Q@ Board
-            CurrentTextBox.Text = "51 sent"
-            SerialPort.Write(command, 0, 1)
-        End If
+        Try
+            If SerialPort.IsOpen Then
+                command(0) = &H51 'Command to request data from Analog inputs of the Q@ Board
+                CurrentTextBox.Text = "51 sent"
+                SerialPort.Write(command, 0, 1)
+            End If
+
+        Catch ex As Exception
+            COMPortToolStripStatusLabel.Text = "Disconnected"
+            SampleRateTimer.Enabled = False 'Disaable Sample Rate Timer
+            CommandTimer.Enabled = False 'Disable Command Timer
+            DataLogTimer.Enabled = False 'Disable Data Log Timer
+            CurrentTextBox.Text = "Error: Disconnected"
+            AnalogFinalTextBox.Text = "Error: Disconnected"
+            IterationTextBox.Text = "0" 'Set iteration count to 0
+            StatusPictureBox.BackColor = Color.Red 'Change status indicator to red
+            'Show error message if port is invalid
+            MessageBox.Show("Error: " & ex.Message)
+        End Try
     End Sub
     Private Sub SerialPort_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort.DataReceived
         CheckForIllegalCrossThreadCalls = False 'disable cross-thread checking
         Dim incomingData As Integer = SerialPort.BytesToRead 'get number of bytes to read
     End Sub
     Private Sub SampleRateTimer_Tick(sender As Object, e As EventArgs) Handles SampleRateTimer.Tick
-        ReadAnalogData()
+        Try
+            ReadAnalogData()
+        Catch ex As Exception
+            COMPortToolStripStatusLabel.Text = "Disconnected"
+            SampleRateTimer.Enabled = False 'Disaable Sample Rate Timer
+            CommandTimer.Enabled = False 'Disable Command Timer
+            DataLogTimer.Enabled = False 'Disable Data Log Timer
+            CurrentTextBox.Text = "Error: Disconnected"
+            AnalogFinalTextBox.Text = "Error: Disconnected"
+            IterationTextBox.Text = "0" 'Set iteration count to 0
+            StatusPictureBox.BackColor = Color.Red 'Change status indicator to red
+            'Show error message if port is invalid
+            MessageBox.Show("Error: " & ex.Message)
+        End Try
     End Sub
     Sub ReadAnalogData()
         If SerialPort.BytesToRead = 2 Then
@@ -160,12 +201,6 @@ Public Class DataLogger
         End If
     End Sub
     'Data Logging ----------------------------------------------------------------------------------------
-    Private Sub ThirtySecondTimer_Tick(sender As Object, e As EventArgs) Handles ThirtySecondTimer.Tick
-        Dim path As String = "AnalogDataLog.log"
-        FileOpen(1, path, OpenMode.Output)
-        FileClose(1)
-    End Sub
-
     Sub LogAnalogData(highByte As String, lowByte As String, analogValue As String)
         Dim path As String = "AnalogDataLog.log"
         'get current date and time
@@ -191,7 +226,7 @@ Public Class DataLogger
         choice = OpenFileDialog.ShowDialog()
         If choice = DialogResult.OK Then
             MsgBox(OpenFileDialog.FileName)
-            LogFilePathToolStripStatusLabel.Text = $"Log File Path: {OpenFileDialog.FileName}"
+            LogFilePathToolStripStatusLabel.Text = $"Log File Path: AnalogDataLog.log"
             Try
                 FileOpen(fileNumber, OpenFileDialog.FileName, OpenMode.Input)
                 Me.DataBuffer.Clear()
@@ -214,7 +249,6 @@ Public Class DataLogger
         End If
 
         GraphData()
-
     End Sub
     'Event Handlers -------------------------------------------------------------------------------------
     Private Sub ExitButton_Click(sender As Object, e As EventArgs) Handles ExitButton.Click
@@ -226,9 +260,11 @@ Public Class DataLogger
         Me.Close()
     End Sub
     Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
+        'clear Drawning Area
+        GraphPictureBox.CreateGraphics.Clear(Color.Black)
+        'Me.DataBuffer.Clear()
         SampleRateTimer.Enabled = False 'Disaable Sample Rate Timer
         CommandTimer.Enabled = False 'Disable Command Timer
-        ThirtySecondTimer.Enabled = False 'Disable 30 Second Timer
         DataLogTimer.Enabled = False 'Disable Data Log Timer
         CurrentTextBox.Text = "Stopped"
         AnalogFinalTextBox.Text = "Stopped"
@@ -241,7 +277,7 @@ Public Class DataLogger
     Private Sub StartButton_Click(sender As Object, e As EventArgs) Handles StartButton.Click
         SampleRateTimer.Enabled = True 'Enable Sample Rate Timer
         CommandTimer.Enabled = True 'Enable Command Timer
-        ThirtySecondTimer.Enabled = True 'Enable 30 Second Timer
+        CheckCOMTimer.Enabled = True 'Enable 30 Second Timer
         DataLogTimer.Enabled = True 'Enable Data Log Timer
     End Sub
     Private Sub Connect_Button_Click(sender As Object, e As EventArgs) Handles Connect_Button.Click
@@ -330,6 +366,7 @@ Public Class DataLogger
         Me.Close()
     End Sub
     Private Sub StartToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles StartToolStripMenuItem1.Click
+
         SampleRateTimer.Enabled = True 'Enable Sample Rate Timer
         CommandTimer.Enabled = True 'Enable Command Timer
         DataLogTimer.Enabled = True 'Enable Data Log Timer
@@ -338,6 +375,8 @@ Public Class DataLogger
 
     End Sub
     Private Sub StopToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles StopToolStripMenuItem1.Click
+        'clear Drawning Area
+        GraphPictureBox.CreateGraphics.Clear(Color.Black)
         SampleRateTimer.Enabled = False 'Disaable Sample Rate Timer
         CommandTimer.Enabled = False 'Disable Command Timer
         DataLogTimer.Enabled = False 'Disable Data Log Timer

@@ -64,15 +64,18 @@ Partial Class DataLogger
         Me.DataLogTimer = New System.Windows.Forms.Timer(Me.components)
         Me.HighByteTextBox = New System.Windows.Forms.TextBox()
         Me.LowByteTextBox = New System.Windows.Forms.TextBox()
-        Me.ThirtySecondTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.CheckCOMTimer = New System.Windows.Forms.Timer(Me.components)
         Me.OpenFileDialog = New System.Windows.Forms.OpenFileDialog()
         Me.IterationTextBox = New System.Windows.Forms.TextBox()
+        Me.StatusPictureBox = New System.Windows.Forms.PictureBox()
+        Me.IterationLabel = New System.Windows.Forms.Label()
         CType(Me.GraphPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TopMenuStrip.SuspendLayout()
         Me.RightClickContextMenuStrip.SuspendLayout()
         Me.ButtonGroupBox.SuspendLayout()
         Me.StatusStrip.SuspendLayout()
         Me.SampleRateGroupBox.SuspendLayout()
+        CType(Me.StatusPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
         'GraphPictureBox
@@ -356,11 +359,12 @@ Partial Class DataLogger
         'CurrentTextBox
         '
         Me.CurrentTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.CurrentTextBox.Location = New System.Drawing.Point(15, 574)
+        Me.CurrentTextBox.Location = New System.Drawing.Point(204, 601)
         Me.CurrentTextBox.Name = "CurrentTextBox"
         Me.CurrentTextBox.Size = New System.Drawing.Size(118, 26)
         Me.CurrentTextBox.TabIndex = 13
         Me.CurrentTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.CurrentTextBox.Visible = False
         '
         'CommandTimer
         '
@@ -369,11 +373,12 @@ Partial Class DataLogger
         'AnalogFinalTextBox
         '
         Me.AnalogFinalTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.AnalogFinalTextBox.Location = New System.Drawing.Point(15, 623)
+        Me.AnalogFinalTextBox.Location = New System.Drawing.Point(204, 633)
         Me.AnalogFinalTextBox.Name = "AnalogFinalTextBox"
         Me.AnalogFinalTextBox.Size = New System.Drawing.Size(118, 26)
         Me.AnalogFinalTextBox.TabIndex = 14
         Me.AnalogFinalTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        Me.AnalogFinalTextBox.Visible = False
         '
         'DataLogTimer
         '
@@ -382,22 +387,24 @@ Partial Class DataLogger
         'HighByteTextBox
         '
         Me.HighByteTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.HighByteTextBox.Location = New System.Drawing.Point(204, 535)
+        Me.HighByteTextBox.Location = New System.Drawing.Point(337, 519)
         Me.HighByteTextBox.Name = "HighByteTextBox"
         Me.HighByteTextBox.Size = New System.Drawing.Size(100, 26)
         Me.HighByteTextBox.TabIndex = 16
+        Me.HighByteTextBox.Visible = False
         '
         'LowByteTextBox
         '
         Me.LowByteTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.LowByteTextBox.Location = New System.Drawing.Point(204, 567)
+        Me.LowByteTextBox.Location = New System.Drawing.Point(337, 551)
         Me.LowByteTextBox.Name = "LowByteTextBox"
         Me.LowByteTextBox.Size = New System.Drawing.Size(100, 26)
         Me.LowByteTextBox.TabIndex = 17
+        Me.LowByteTextBox.Visible = False
         '
-        'ThirtySecondTimer
+        'CheckCOMTimer
         '
-        Me.ThirtySecondTimer.Interval = 30000
+        Me.CheckCOMTimer.Interval = 50
         '
         'OpenFileDialog
         '
@@ -405,16 +412,39 @@ Partial Class DataLogger
         '
         'IterationTextBox
         '
-        Me.IterationTextBox.Location = New System.Drawing.Point(203, 631)
+        Me.IterationTextBox.Location = New System.Drawing.Point(15, 588)
         Me.IterationTextBox.Name = "IterationTextBox"
-        Me.IterationTextBox.Size = New System.Drawing.Size(100, 26)
+        Me.IterationTextBox.Size = New System.Drawing.Size(136, 26)
         Me.IterationTextBox.TabIndex = 18
+        Me.IterationTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
+        '
+        'StatusPictureBox
+        '
+        Me.StatusPictureBox.ErrorImage = Global.DataLogger.My.Resources.Resources.disconnected_16
+        Me.StatusPictureBox.InitialImage = Global.DataLogger.My.Resources.Resources.status_connected
+        Me.StatusPictureBox.Location = New System.Drawing.Point(154, 519)
+        Me.StatusPictureBox.Name = "StatusPictureBox"
+        Me.StatusPictureBox.Size = New System.Drawing.Size(36, 31)
+        Me.StatusPictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage
+        Me.StatusPictureBox.TabIndex = 19
+        Me.StatusPictureBox.TabStop = False
+        '
+        'IterationLabel
+        '
+        Me.IterationLabel.AutoSize = True
+        Me.IterationLabel.Location = New System.Drawing.Point(12, 565)
+        Me.IterationLabel.Name = "IterationLabel"
+        Me.IterationLabel.Size = New System.Drawing.Size(146, 20)
+        Me.IterationLabel.TabIndex = 20
+        Me.IterationLabel.Text = "Data Points Plotted"
         '
         'DataLogger
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(866, 700)
+        Me.Controls.Add(Me.IterationLabel)
+        Me.Controls.Add(Me.StatusPictureBox)
         Me.Controls.Add(Me.IterationTextBox)
         Me.Controls.Add(Me.LowByteTextBox)
         Me.Controls.Add(Me.HighByteTextBox)
@@ -440,6 +470,7 @@ Partial Class DataLogger
         Me.StatusStrip.PerformLayout()
         Me.SampleRateGroupBox.ResumeLayout(False)
         Me.SampleRateGroupBox.PerformLayout()
+        CType(Me.StatusPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -485,8 +516,10 @@ Partial Class DataLogger
     Friend WithEvents HighByteTextBox As TextBox
     Friend WithEvents LowByteTextBox As TextBox
     Friend WithEvents ClearLogToolStripMenuItem As ToolStripMenuItem
-    Friend WithEvents ThirtySecondTimer As Timer
+    Friend WithEvents CheckCOMTimer As Timer
     Friend WithEvents OpenFileDialog As OpenFileDialog
     Friend WithEvents OpenToolStripMenuItem As ToolStripMenuItem
     Friend WithEvents IterationTextBox As TextBox
+    Friend WithEvents StatusPictureBox As PictureBox
+    Friend WithEvents IterationLabel As Label
 End Class

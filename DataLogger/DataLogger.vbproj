@@ -120,5 +120,14 @@
     </None>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Connected.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\disconnected-16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\status-connected.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>
