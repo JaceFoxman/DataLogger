@@ -43,7 +43,7 @@ Partial Class DataLogger
         Me.StartButton = New System.Windows.Forms.Button()
         Me.ButtonGroupBox = New System.Windows.Forms.GroupBox()
         Me.ExitButton = New System.Windows.Forms.Button()
-        Me.SaveButton = New System.Windows.Forms.Button()
+        Me.RefreshCOMButton = New System.Windows.Forms.Button()
         Me.StopButton = New System.Windows.Forms.Button()
         Me.StatusStrip = New System.Windows.Forms.StatusStrip()
         Me.COMPortToolStripStatusLabel = New System.Windows.Forms.ToolStripStatusLabel()
@@ -69,6 +69,9 @@ Partial Class DataLogger
         Me.IterationTextBox = New System.Windows.Forms.TextBox()
         Me.StatusPictureBox = New System.Windows.Forms.PictureBox()
         Me.IterationLabel = New System.Windows.Forms.Label()
+        Me.AN1RadioButton = New System.Windows.Forms.RadioButton()
+        Me.AN2RadioButton = New System.Windows.Forms.RadioButton()
+        Me.AnalogSelectGroupBox = New System.Windows.Forms.GroupBox()
         CType(Me.GraphPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.TopMenuStrip.SuspendLayout()
         Me.RightClickContextMenuStrip.SuspendLayout()
@@ -76,6 +79,7 @@ Partial Class DataLogger
         Me.StatusStrip.SuspendLayout()
         Me.SampleRateGroupBox.SuspendLayout()
         CType(Me.StatusPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
+        Me.AnalogSelectGroupBox.SuspendLayout()
         Me.SuspendLayout()
         '
         'GraphPictureBox
@@ -86,7 +90,7 @@ Partial Class DataLogger
         Me.GraphPictureBox.BackColor = System.Drawing.SystemColors.ActiveCaptionText
         Me.GraphPictureBox.Location = New System.Drawing.Point(1, 36)
         Me.GraphPictureBox.Name = "GraphPictureBox"
-        Me.GraphPictureBox.Size = New System.Drawing.Size(864, 408)
+        Me.GraphPictureBox.Size = New System.Drawing.Size(1498, 408)
         Me.GraphPictureBox.TabIndex = 0
         Me.GraphPictureBox.TabStop = False
         '
@@ -97,7 +101,7 @@ Partial Class DataLogger
         Me.TopMenuStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.FileToolStripMenuItem, Me.EditToolStripMenuItem, Me.HelpToolStripMenuItem})
         Me.TopMenuStrip.Location = New System.Drawing.Point(0, 0)
         Me.TopMenuStrip.Name = "TopMenuStrip"
-        Me.TopMenuStrip.Size = New System.Drawing.Size(866, 33)
+        Me.TopMenuStrip.Size = New System.Drawing.Size(1500, 33)
         Me.TopMenuStrip.TabIndex = 1
         Me.TopMenuStrip.Text = "MenuStrip1"
         '
@@ -197,21 +201,22 @@ Partial Class DataLogger
         '
         'StartButton
         '
+        Me.StartButton.BackColor = System.Drawing.Color.ForestGreen
         Me.StartButton.Location = New System.Drawing.Point(11, 25)
         Me.StartButton.Name = "StartButton"
         Me.StartButton.Size = New System.Drawing.Size(93, 75)
         Me.StartButton.TabIndex = 2
         Me.StartButton.Text = "Start"
-        Me.StartButton.UseVisualStyleBackColor = True
+        Me.StartButton.UseVisualStyleBackColor = False
         '
         'ButtonGroupBox
         '
         Me.ButtonGroupBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.ButtonGroupBox.Controls.Add(Me.ExitButton)
-        Me.ButtonGroupBox.Controls.Add(Me.SaveButton)
+        Me.ButtonGroupBox.Controls.Add(Me.RefreshCOMButton)
         Me.ButtonGroupBox.Controls.Add(Me.StopButton)
         Me.ButtonGroupBox.Controls.Add(Me.StartButton)
-        Me.ButtonGroupBox.Location = New System.Drawing.Point(649, 450)
+        Me.ButtonGroupBox.Location = New System.Drawing.Point(1283, 450)
         Me.ButtonGroupBox.Name = "ButtonGroupBox"
         Me.ButtonGroupBox.Size = New System.Drawing.Size(216, 205)
         Me.ButtonGroupBox.TabIndex = 3
@@ -219,57 +224,64 @@ Partial Class DataLogger
         '
         'ExitButton
         '
+        Me.ExitButton.BackColor = System.Drawing.Color.Firebrick
         Me.ExitButton.Location = New System.Drawing.Point(110, 124)
         Me.ExitButton.Name = "ExitButton"
         Me.ExitButton.Size = New System.Drawing.Size(93, 75)
         Me.ExitButton.TabIndex = 5
         Me.ExitButton.Text = "Exit"
-        Me.ExitButton.UseVisualStyleBackColor = True
+        Me.ExitButton.UseVisualStyleBackColor = False
         '
-        'SaveButton
+        'RefreshCOMButton
         '
-        Me.SaveButton.Location = New System.Drawing.Point(110, 25)
-        Me.SaveButton.Name = "SaveButton"
-        Me.SaveButton.Size = New System.Drawing.Size(93, 75)
-        Me.SaveButton.TabIndex = 4
-        Me.SaveButton.Text = "Save"
-        Me.SaveButton.UseVisualStyleBackColor = True
+        Me.RefreshCOMButton.BackColor = System.Drawing.Color.Teal
+        Me.RefreshCOMButton.Location = New System.Drawing.Point(110, 25)
+        Me.RefreshCOMButton.Name = "RefreshCOMButton"
+        Me.RefreshCOMButton.Size = New System.Drawing.Size(93, 75)
+        Me.RefreshCOMButton.TabIndex = 4
+        Me.RefreshCOMButton.Text = "Refresh"
+        Me.RefreshCOMButton.UseVisualStyleBackColor = False
         '
         'StopButton
         '
+        Me.StopButton.BackColor = System.Drawing.Color.SlateGray
         Me.StopButton.Location = New System.Drawing.Point(11, 124)
         Me.StopButton.Name = "StopButton"
         Me.StopButton.Size = New System.Drawing.Size(93, 75)
         Me.StopButton.TabIndex = 3
         Me.StopButton.Text = "Stop"
-        Me.StopButton.UseVisualStyleBackColor = True
+        Me.StopButton.UseVisualStyleBackColor = False
         '
         'StatusStrip
         '
         Me.StatusStrip.ImageScalingSize = New System.Drawing.Size(24, 24)
         Me.StatusStrip.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.COMPortToolStripStatusLabel, Me.SamplingRateToolStripStatusLabel, Me.LogFilePathToolStripStatusLabel})
-        Me.StatusStrip.Location = New System.Drawing.Point(0, 668)
+        Me.StatusStrip.Location = New System.Drawing.Point(0, 674)
         Me.StatusStrip.Name = "StatusStrip"
-        Me.StatusStrip.Size = New System.Drawing.Size(866, 32)
+        Me.StatusStrip.Size = New System.Drawing.Size(1500, 26)
         Me.StatusStrip.TabIndex = 4
         Me.StatusStrip.Text = "StatusStrip1"
         '
         'COMPortToolStripStatusLabel
         '
+        Me.COMPortToolStripStatusLabel.Font = New System.Drawing.Font("Consolas", 8.0!)
         Me.COMPortToolStripStatusLabel.Name = "COMPortToolStripStatusLabel"
-        Me.COMPortToolStripStatusLabel.Size = New System.Drawing.Size(90, 25)
+        Me.COMPortToolStripStatusLabel.Size = New System.Drawing.Size(81, 19)
         Me.COMPortToolStripStatusLabel.Text = "COM Port"
         '
         'SamplingRateToolStripStatusLabel
         '
+        Me.SamplingRateToolStripStatusLabel.Font = New System.Drawing.Font("Consolas", 8.0!)
         Me.SamplingRateToolStripStatusLabel.Name = "SamplingRateToolStripStatusLabel"
-        Me.SamplingRateToolStripStatusLabel.Size = New System.Drawing.Size(127, 25)
+        Me.SamplingRateToolStripStatusLabel.Size = New System.Drawing.Size(126, 19)
         Me.SamplingRateToolStripStatusLabel.Text = "Sampling Rate"
         '
         'LogFilePathToolStripStatusLabel
         '
+        Me.LogFilePathToolStripStatusLabel.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text
+        Me.LogFilePathToolStripStatusLabel.Font = New System.Drawing.Font("Consolas", 8.0!)
         Me.LogFilePathToolStripStatusLabel.Name = "LogFilePathToolStripStatusLabel"
-        Me.LogFilePathToolStripStatusLabel.Size = New System.Drawing.Size(112, 25)
+        Me.LogFilePathToolStripStatusLabel.Size = New System.Drawing.Size(126, 19)
         Me.LogFilePathToolStripStatusLabel.Text = "Log File Path"
         '
         'Connect_Button
@@ -307,7 +319,7 @@ Partial Class DataLogger
         Me.SampleRateComboBox.FormattingEnabled = True
         Me.SampleRateComboBox.Location = New System.Drawing.Point(154, 469)
         Me.SampleRateComboBox.Name = "SampleRateComboBox"
-        Me.SampleRateComboBox.Size = New System.Drawing.Size(245, 28)
+        Me.SampleRateComboBox.Size = New System.Drawing.Size(170, 28)
         Me.SampleRateComboBox.TabIndex = 7
         '
         'SampleRateGroupBox
@@ -316,7 +328,7 @@ Partial Class DataLogger
         Me.SampleRateGroupBox.Controls.Add(Me.MiliSecondsRadioButton)
         Me.SampleRateGroupBox.Controls.Add(Me.SecondsRadioButton)
         Me.SampleRateGroupBox.Controls.Add(Me.MinutesRadioButton)
-        Me.SampleRateGroupBox.Location = New System.Drawing.Point(443, 475)
+        Me.SampleRateGroupBox.Location = New System.Drawing.Point(1077, 475)
         Me.SampleRateGroupBox.Name = "SampleRateGroupBox"
         Me.SampleRateGroupBox.Size = New System.Drawing.Size(200, 174)
         Me.SampleRateGroupBox.TabIndex = 8
@@ -326,9 +338,10 @@ Partial Class DataLogger
         'MiliSecondsRadioButton
         '
         Me.MiliSecondsRadioButton.AutoSize = True
+        Me.MiliSecondsRadioButton.Font = New System.Drawing.Font("Consolas", 8.0!)
         Me.MiliSecondsRadioButton.Location = New System.Drawing.Point(6, 124)
         Me.MiliSecondsRadioButton.Name = "MiliSecondsRadioButton"
-        Me.MiliSecondsRadioButton.Size = New System.Drawing.Size(116, 24)
+        Me.MiliSecondsRadioButton.Size = New System.Drawing.Size(133, 23)
         Me.MiliSecondsRadioButton.TabIndex = 2
         Me.MiliSecondsRadioButton.TabStop = True
         Me.MiliSecondsRadioButton.Text = "Miliseconds"
@@ -337,9 +350,10 @@ Partial Class DataLogger
         'SecondsRadioButton
         '
         Me.SecondsRadioButton.AutoSize = True
+        Me.SecondsRadioButton.Font = New System.Drawing.Font("Consolas", 8.0!)
         Me.SecondsRadioButton.Location = New System.Drawing.Point(6, 85)
         Me.SecondsRadioButton.Name = "SecondsRadioButton"
-        Me.SecondsRadioButton.Size = New System.Drawing.Size(97, 24)
+        Me.SecondsRadioButton.Size = New System.Drawing.Size(97, 23)
         Me.SecondsRadioButton.TabIndex = 1
         Me.SecondsRadioButton.TabStop = True
         Me.SecondsRadioButton.Text = "Seconds"
@@ -348,9 +362,10 @@ Partial Class DataLogger
         'MinutesRadioButton
         '
         Me.MinutesRadioButton.AutoSize = True
+        Me.MinutesRadioButton.Font = New System.Drawing.Font("Consolas", 8.0!)
         Me.MinutesRadioButton.Location = New System.Drawing.Point(6, 40)
         Me.MinutesRadioButton.Name = "MinutesRadioButton"
-        Me.MinutesRadioButton.Size = New System.Drawing.Size(90, 24)
+        Me.MinutesRadioButton.Size = New System.Drawing.Size(97, 23)
         Me.MinutesRadioButton.TabIndex = 0
         Me.MinutesRadioButton.TabStop = True
         Me.MinutesRadioButton.Text = "Minutes"
@@ -359,7 +374,7 @@ Partial Class DataLogger
         'CurrentTextBox
         '
         Me.CurrentTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.CurrentTextBox.Location = New System.Drawing.Point(204, 601)
+        Me.CurrentTextBox.Location = New System.Drawing.Point(196, 556)
         Me.CurrentTextBox.Name = "CurrentTextBox"
         Me.CurrentTextBox.Size = New System.Drawing.Size(118, 26)
         Me.CurrentTextBox.TabIndex = 13
@@ -373,7 +388,7 @@ Partial Class DataLogger
         'AnalogFinalTextBox
         '
         Me.AnalogFinalTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.AnalogFinalTextBox.Location = New System.Drawing.Point(204, 633)
+        Me.AnalogFinalTextBox.Location = New System.Drawing.Point(196, 588)
         Me.AnalogFinalTextBox.Name = "AnalogFinalTextBox"
         Me.AnalogFinalTextBox.Size = New System.Drawing.Size(118, 26)
         Me.AnalogFinalTextBox.TabIndex = 14
@@ -387,7 +402,7 @@ Partial Class DataLogger
         'HighByteTextBox
         '
         Me.HighByteTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.HighByteTextBox.Location = New System.Drawing.Point(337, 519)
+        Me.HighByteTextBox.Location = New System.Drawing.Point(196, 499)
         Me.HighByteTextBox.Name = "HighByteTextBox"
         Me.HighByteTextBox.Size = New System.Drawing.Size(100, 26)
         Me.HighByteTextBox.TabIndex = 16
@@ -396,7 +411,7 @@ Partial Class DataLogger
         'LowByteTextBox
         '
         Me.LowByteTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
-        Me.LowByteTextBox.Location = New System.Drawing.Point(337, 551)
+        Me.LowByteTextBox.Location = New System.Drawing.Point(196, 531)
         Me.LowByteTextBox.Name = "LowByteTextBox"
         Me.LowByteTextBox.Size = New System.Drawing.Size(100, 26)
         Me.LowByteTextBox.TabIndex = 17
@@ -412,14 +427,16 @@ Partial Class DataLogger
         '
         'IterationTextBox
         '
+        Me.IterationTextBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.IterationTextBox.Location = New System.Drawing.Point(15, 588)
         Me.IterationTextBox.Name = "IterationTextBox"
-        Me.IterationTextBox.Size = New System.Drawing.Size(136, 26)
+        Me.IterationTextBox.Size = New System.Drawing.Size(175, 26)
         Me.IterationTextBox.TabIndex = 18
         Me.IterationTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center
         '
         'StatusPictureBox
         '
+        Me.StatusPictureBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.StatusPictureBox.ErrorImage = Global.DataLogger.My.Resources.Resources.disconnected_16
         Me.StatusPictureBox.InitialImage = Global.DataLogger.My.Resources.Resources.status_connected
         Me.StatusPictureBox.Location = New System.Drawing.Point(154, 519)
@@ -431,18 +448,55 @@ Partial Class DataLogger
         '
         'IterationLabel
         '
+        Me.IterationLabel.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
         Me.IterationLabel.AutoSize = True
+        Me.IterationLabel.Font = New System.Drawing.Font("Consolas", 8.0!)
         Me.IterationLabel.Location = New System.Drawing.Point(12, 565)
         Me.IterationLabel.Name = "IterationLabel"
-        Me.IterationLabel.Size = New System.Drawing.Size(146, 20)
+        Me.IterationLabel.Size = New System.Drawing.Size(180, 19)
         Me.IterationLabel.TabIndex = 20
         Me.IterationLabel.Text = "Data Points Plotted"
+        '
+        'AN1RadioButton
+        '
+        Me.AN1RadioButton.AutoSize = True
+        Me.AN1RadioButton.Location = New System.Drawing.Point(6, 51)
+        Me.AN1RadioButton.Name = "AN1RadioButton"
+        Me.AN1RadioButton.Size = New System.Drawing.Size(65, 24)
+        Me.AN1RadioButton.TabIndex = 21
+        Me.AN1RadioButton.TabStop = True
+        Me.AN1RadioButton.Text = "AN1"
+        Me.AN1RadioButton.UseVisualStyleBackColor = True
+        '
+        'AN2RadioButton
+        '
+        Me.AN2RadioButton.AutoSize = True
+        Me.AN2RadioButton.Location = New System.Drawing.Point(6, 85)
+        Me.AN2RadioButton.Name = "AN2RadioButton"
+        Me.AN2RadioButton.Size = New System.Drawing.Size(65, 24)
+        Me.AN2RadioButton.TabIndex = 22
+        Me.AN2RadioButton.TabStop = True
+        Me.AN2RadioButton.Text = "AN2"
+        Me.AN2RadioButton.UseVisualStyleBackColor = True
+        '
+        'AnalogSelectGroupBox
+        '
+        Me.AnalogSelectGroupBox.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.AnalogSelectGroupBox.Controls.Add(Me.AN1RadioButton)
+        Me.AnalogSelectGroupBox.Controls.Add(Me.AN2RadioButton)
+        Me.AnalogSelectGroupBox.Location = New System.Drawing.Point(964, 475)
+        Me.AnalogSelectGroupBox.Name = "AnalogSelectGroupBox"
+        Me.AnalogSelectGroupBox.Size = New System.Drawing.Size(107, 118)
+        Me.AnalogSelectGroupBox.TabIndex = 23
+        Me.AnalogSelectGroupBox.TabStop = False
+        Me.AnalogSelectGroupBox.Text = "Analog Port select"
         '
         'DataLogger
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(9.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
-        Me.ClientSize = New System.Drawing.Size(866, 700)
+        Me.ClientSize = New System.Drawing.Size(1500, 700)
+        Me.Controls.Add(Me.AnalogSelectGroupBox)
         Me.Controls.Add(Me.IterationLabel)
         Me.Controls.Add(Me.StatusPictureBox)
         Me.Controls.Add(Me.IterationTextBox)
@@ -471,6 +525,8 @@ Partial Class DataLogger
         Me.SampleRateGroupBox.ResumeLayout(False)
         Me.SampleRateGroupBox.PerformLayout()
         CType(Me.StatusPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
+        Me.AnalogSelectGroupBox.ResumeLayout(False)
+        Me.AnalogSelectGroupBox.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -491,7 +547,7 @@ Partial Class DataLogger
     Friend WithEvents StartButton As Button
     Friend WithEvents ButtonGroupBox As GroupBox
     Friend WithEvents ExitButton As Button
-    Friend WithEvents SaveButton As Button
+    Friend WithEvents RefreshCOMButton As Button
     Friend WithEvents StopButton As Button
     Friend WithEvents StatusStrip As StatusStrip
     Friend WithEvents LogFilePathToolStripStatusLabel As ToolStripStatusLabel
@@ -522,4 +578,7 @@ Partial Class DataLogger
     Friend WithEvents IterationTextBox As TextBox
     Friend WithEvents StatusPictureBox As PictureBox
     Friend WithEvents IterationLabel As Label
+    Friend WithEvents AN1RadioButton As RadioButton
+    Friend WithEvents AN2RadioButton As RadioButton
+    Friend WithEvents AnalogSelectGroupBox As GroupBox
 End Class

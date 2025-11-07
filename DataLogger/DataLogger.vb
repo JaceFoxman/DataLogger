@@ -3,7 +3,7 @@
 'Jason Permann
 'RCET 3371
 'Data Logger Application
-'
+'https://github.com/JaceFoxman/DataLogger.git
 
 Option Strict On
 Option Explicit On
@@ -26,6 +26,8 @@ Public Class DataLogger
             SecondsRadioButton.Checked = True 'Set default time unit to seconds
             MinutesRadioButton.Checked = False
             MiliSecondsRadioButton.Checked = False
+            AN1RadioButton.Checked = True 'Set default analog input to AN1
+            AN2RadioButton.Checked = False
             StartButton.Enabled = False
             StartToolStripMenuItem1.Enabled = False
             StartToolStripMenuItem.Enabled = False
@@ -61,6 +63,7 @@ Public Class DataLogger
             If SerialPort.IsOpen Then  'Check if Serial Port is open
                 MessageBox.Show("Connected to " & SerialPort.PortName) 'Show message if connected
                 COMPortToolStripStatusLabel.Text = ("Connected to " & SerialPort.PortName)
+                COMPortToolStripStatusLabel.ForeColor = Color.Green
                 StartButton.Enabled = True
                 StartToolStripMenuItem1.Enabled = True
                 StartToolStripMenuItem.Enabled = True
@@ -76,18 +79,16 @@ Public Class DataLogger
             Return
         End Try
     End Sub
-
     'Graphing Analog Data-------------------------------------------------------------------------------
+    ''' <summary>
+    ''' Enqueue Analog Data for Graphing
+    ''' </summary>
+    ''' <param name="analogValue"></param>
     Sub GetData(analogValue As Integer)
         Dim _last%
         Dim dequeueStart As Integer
         _last = analogValue
 
-        'If Me.DataBuffer.Count > 0 Then
-        '    _last = Me.DataBuffer.Last
-        'Else
-        '    _last = analogValue
-        'End If
         If MinutesRadioButton.Checked = True Then
             dequeueStart = 60
         ElseIf SecondsRadioButton.Checked = True Then
@@ -104,9 +105,19 @@ Public Class DataLogger
 
         Me.DataBuffer.Enqueue(_last)
     End Sub
+    ''' <summary>
+    ''' Graph Analog Data
+    ''' </summary>
     Sub GraphData()
         Dim g As Graphics = GraphPictureBox.CreateGraphics
         Dim pen As New Pen(Color.Lime)
+        Select Case AN1RadioButton.Checked = True
+            Case True
+                pen.Color = Color.Lime
+            Case False
+                pen.Color = Color.MediumPurple
+                'Analog Input 2 Selected
+        End Select
         Dim eraser As New Pen(Color.Black)
         Dim scaleX! = CSng(GraphPictureBox.Width / Me.DataBuffer.Count)
         Dim scaleY! = CSng((GraphPictureBox.Height / 1024) * -1)
@@ -130,14 +141,30 @@ Public Class DataLogger
         eraser.Dispose()
     End Sub
     'Sample Rate ----------------------------------------------------------------------------------------
+    ''' <summary>
+    ''' Send Command to Q@ Board to Request Analog Data
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
     Private Sub CommandTimer_Tick(sender As Object, e As EventArgs) Handles CommandTimer.Tick
         Dim command As Byte() = New Byte(0) {}
         Try
-            If SerialPort.IsOpen Then
-                command(0) = &H51 'Command to request data from Analog inputs of the Q@ Board
-                CurrentTextBox.Text = "51 sent"
-                SerialPort.Write(command, 0, 1)
-            End If
+            Select Case AN1RadioButton.Checked = True
+                Case True
+                    'Analog Input 1 Selected
+                    If SerialPort.IsOpen Then
+                        command(0) = &H51 'Command to request data from Analog inputs of the Q@ Board
+                        CurrentTextBox.Text = "51 sent"
+                        SerialPort.Write(command, 0, 1)
+                    End If
+                Case False
+                    'Analog Input 2 Selected
+                    If SerialPort.IsOpen Then
+                        command(0) = &H52 'Command to request data from Analog inputs of the Q@ Board
+                        CurrentTextBox.Text = "52 sent"
+                        SerialPort.Write(command, 0, 1)
+                    End If
+            End Select
 
         Catch ex As Exception
             COMPortToolStripStatusLabel.Text = "Disconnected"
@@ -148,14 +175,25 @@ Public Class DataLogger
             AnalogFinalTextBox.Text = "Error: Disconnected"
             IterationTextBox.Text = "0" 'Set iteration count to 0
             StatusPictureBox.BackColor = Color.Red 'Change status indicator to red
+            COMPortToolStripStatusLabel.ForeColor = Color.Red
             'Show error message if port is invalid
             MessageBox.Show("Error: " & ex.Message)
         End Try
     End Sub
+    ''' <summary>
+    ''' Handle Incoming Serial Data
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
     Private Sub SerialPort_DataReceived(sender As Object, e As SerialDataReceivedEventArgs) Handles SerialPort.DataReceived
         CheckForIllegalCrossThreadCalls = False 'disable cross-thread checking
         Dim incomingData As Integer = SerialPort.BytesToRead 'get number of bytes to read
     End Sub
+    ''' <summary>
+    ''' Read Analog Data from Serial Port at Sample Rate Interval
+    ''' </summary>
+    ''' <param name="sender"></param>
+    ''' <param name="e"></param>
     Private Sub SampleRateTimer_Tick(sender As Object, e As EventArgs) Handles SampleRateTimer.Tick
         Try
             ReadAnalogData()
@@ -168,10 +206,14 @@ Public Class DataLogger
             AnalogFinalTextBox.Text = "Error: Disconnected"
             IterationTextBox.Text = "0" 'Set iteration count to 0
             StatusPictureBox.BackColor = Color.Red 'Change status indicator to red
+            COMPortToolStripStatusLabel.ForeColor = Color.Red
             'Show error message if port is invalid
             MessageBox.Show("Error: " & ex.Message)
         End Try
     End Sub
+    ''' <summary>
+    ''' Read Analog Data from Serial Port
+    ''' </summary>
     Sub ReadAnalogData()
         If SerialPort.BytesToRead = 2 Then
             Dim incomingData(SerialPort.BytesToRead) As Byte    'create byte array to hold incoming data
@@ -181,7 +223,6 @@ Public Class DataLogger
                 value &= $"{CStr(dataByte)},"   'build string of incoming data
             Next
             CurrentTextBox.Text = value 'display raw incoming data
-
             Dim valueSplit As String() = value.Split(","c)  'split incoming data into array
 
             Dim analogHighSplit As Integer = CInt(valueSplit(0)) 'get analog high byte
@@ -201,20 +242,37 @@ Public Class DataLogger
         End If
     End Sub
     'Data Logging ----------------------------------------------------------------------------------------
+    ''' <summary>
+    ''' Log Analog Data to File
+    ''' </summary>
+    ''' <param name="highByte"></param>
+    ''' <param name="lowByte"></param>
+    ''' <param name="analogValue"></param>
     Sub LogAnalogData(highByte As String, lowByte As String, analogValue As String)
-        Dim path As String = "AnalogDataLog.log"
         'get current date and time
-        Dim currentDateTime As String = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+        Dim currentDateTime As String = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss:tt")
+        Dim currentDate As String = DateTime.Now.ToString("yyyy-MM-dd")
+        Dim currentHour As String = DateTime.Now.ToString("HH")
+        Dim AM_PM As String = DateTime.Now.ToString("tt")
+        Dim analogSelector As String
+        If AN1RadioButton.Checked Then
+            analogSelector = "AN1"
+        Else
+            analogSelector = "AN2"
+        End If
+        Dim path As String = $"Log_{currentDate} {currentHour}{AM_PM}.log"
         'create log entry
-        Dim logEntry As String = $"$$AN1, High Byte: {highByte}, Low Byte: {lowByte}, Analog Value: {analogValue}, {currentDateTime}"
+        Dim logEntry As String = $"$${analogSelector}, High Byte: {highByte}, Low Byte: {lowByte}, Analog Value: {analogValue}, {currentDateTime}"
         'append log entry to file
         FileOpen(1, path, OpenMode.Append)
         'PrintLine(1, "-------------------")
         WriteLine(1, {logEntry})
         FileClose(1)
-        'LogFilePathToolStripStatusLabel.Text = $"Log File Path: {path}"
     End Sub
     'Read Date  ------------------------------------------------------------------------------------------
+    ''' <summary>
+    ''' Grab Analog Data from Log File
+    ''' </summary>
     Sub GrabAnalogData()
         Dim choice As DialogResult
         Dim fileNumber% = FreeFile()
@@ -226,7 +284,7 @@ Public Class DataLogger
         choice = OpenFileDialog.ShowDialog()
         If choice = DialogResult.OK Then
             MsgBox(OpenFileDialog.FileName)
-            LogFilePathToolStripStatusLabel.Text = $"Log File Path: AnalogDataLog.log"
+            LogFilePathToolStripStatusLabel.Text = $"Log File Path: {OpenFileDialog.FileName}"
             Try
                 FileOpen(fileNumber, OpenFileDialog.FileName, OpenMode.Input)
                 Me.DataBuffer.Clear()
@@ -235,6 +293,7 @@ Public Class DataLogger
                     currentRecord = LineInput(fileNumber)
                     tempArray = Split(currentRecord, ",")
                     analogValue = tempArray(3).Substring(tempArray(3).IndexOf(":") + 2)
+
                     'MsgBox(analogValue) 
                     Me.DataBuffer.Enqueue(CInt(analogValue))
                 Loop
@@ -247,32 +306,32 @@ Public Class DataLogger
             MsgBox("Canceled")
             LogFilePathToolStripStatusLabel.Text = $"Log File Path: Not Selected"
         End If
-
         GraphData()
     End Sub
     'Event Handlers -------------------------------------------------------------------------------------
     Private Sub ExitButton_Click(sender As Object, e As EventArgs) Handles ExitButton.Click
         SerialPort.Close() 'Close Serial Port
-        'Dim path As String = "AnalogDataLog.log"
-        'FileOpen(1, path, OpenMode.Append)
-        'PrintLine(1, $"Program Closed")
-        'FileClose(1)
         Me.Close()
     End Sub
     Private Sub StopButton_Click(sender As Object, e As EventArgs) Handles StopButton.Click
-        'clear Drawning Area
         GraphPictureBox.CreateGraphics.Clear(Color.Black)
-        'Me.DataBuffer.Clear()
+        Me.DataBuffer.Clear()
         SampleRateTimer.Enabled = False 'Disaable Sample Rate Timer
         CommandTimer.Enabled = False 'Disable Command Timer
         DataLogTimer.Enabled = False 'Disable Data Log Timer
         CurrentTextBox.Text = "Stopped"
         AnalogFinalTextBox.Text = "Stopped"
         IterationTextBox.Text = "0" 'Set iteration count to 0
-
     End Sub
-    Private Sub SaveButton_Click(sender As Object, e As EventArgs) Handles SaveButton.Click
-
+    Private Sub SaveButton_Click(sender As Object, e As EventArgs) Handles RefreshCOMButton.Click
+        Try
+            For Each port In SerialPort.GetPortNames()
+                COMPort_ComboBox.Items.Add(port)
+            Next
+            COMPort_ComboBox.SelectedIndex = 0
+        Catch ex As Exception
+            MessageBox.Show("No COM Ports found. Please connect the Q@ Board and refresh")
+        End Try
     End Sub
     Private Sub StartButton_Click(sender As Object, e As EventArgs) Handles StartButton.Click
         SampleRateTimer.Enabled = True 'Enable Sample Rate Timer
@@ -323,7 +382,6 @@ Public Class DataLogger
         If MinutesRadioButton.Checked Then
             SecondsRadioButton.Checked = False
             MiliSecondsRadioButton.Checked = False
-
             SampleRateComboBox.Items.Clear()
             SampleRateComboBox.Items.Add("1 Minute")
             SampleRateComboBox.Items.Add("5 Minutes")
@@ -335,7 +393,6 @@ Public Class DataLogger
         If SecondsRadioButton.Checked Then
             MinutesRadioButton.Checked = False
             MiliSecondsRadioButton.Checked = False
-
             SampleRateComboBox.Items.Clear()
             SampleRateComboBox.Items.Add("1 Second")
             SampleRateComboBox.Items.Add("5 Seconds")
@@ -348,7 +405,6 @@ Public Class DataLogger
         If MiliSecondsRadioButton.Checked Then
             MinutesRadioButton.Checked = False
             SecondsRadioButton.Checked = False
-
             SampleRateComboBox.Items.Clear()
             SampleRateComboBox.Items.Add("100 Milliseconds")
             SampleRateComboBox.Items.Add("200 Milliseconds")
@@ -359,29 +415,33 @@ Public Class DataLogger
     'Menu Items --------------------------------------------------------------------------------------
     Private Sub ExitToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem1.Click
         SerialPort.Close() 'Close Serial Port
-        Dim path As String = "AnalogDataLog.log"
-        FileOpen(1, path, OpenMode.Append)
-        PrintLine(1, $"Program Closed")
-        FileClose(1)
         Me.Close()
     End Sub
     Private Sub StartToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles StartToolStripMenuItem1.Click
-
         SampleRateTimer.Enabled = True 'Enable Sample Rate Timer
         CommandTimer.Enabled = True 'Enable Command Timer
+        CheckCOMTimer.Enabled = True 'Enable 30 Second Timer
         DataLogTimer.Enabled = True 'Enable Data Log Timer
     End Sub
     Private Sub SaveToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem1.Click
-
+        Try
+            For Each port In SerialPort.GetPortNames()
+                COMPort_ComboBox.Items.Add(port)
+            Next
+            COMPort_ComboBox.SelectedIndex = 0
+        Catch ex As Exception
+            MessageBox.Show("No COM Ports found. Please connect the Q@ Board and refresh")
+        End Try
     End Sub
     Private Sub StopToolStripMenuItem1_Click(sender As Object, e As EventArgs) Handles StopToolStripMenuItem1.Click
-        'clear Drawning Area
         GraphPictureBox.CreateGraphics.Clear(Color.Black)
+        Me.DataBuffer.Clear()
         SampleRateTimer.Enabled = False 'Disaable Sample Rate Timer
         CommandTimer.Enabled = False 'Disable Command Timer
         DataLogTimer.Enabled = False 'Disable Data Log Timer
         CurrentTextBox.Text = "Stopped"
         AnalogFinalTextBox.Text = "Stopped"
+        IterationTextBox.Text = "0" 'Set iteration count to 0
     End Sub
     Private Sub ClearLogToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ClearLogToolStripMenuItem.Click
         Dim result As DialogResult
@@ -399,20 +459,33 @@ Public Class DataLogger
     End Sub
     'Context Menu Items --------------------------------------------------------------------------------
     Private Sub StartToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StartToolStripMenuItem.Click
-
+        SampleRateTimer.Enabled = True 'Enable Sample Rate Timer
+        CommandTimer.Enabled = True 'Enable Command Timer
+        CheckCOMTimer.Enabled = True 'Enable 30 Second Timer
+        DataLogTimer.Enabled = True 'Enable Data Log Timer
     End Sub
     Private Sub StopToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles StopToolStripMenuItem.Click
-
+        GraphPictureBox.CreateGraphics.Clear(Color.Black)
+        Me.DataBuffer.Clear()
+        SampleRateTimer.Enabled = False 'Disaable Sample Rate Timer
+        CommandTimer.Enabled = False 'Disable Command Timer
+        DataLogTimer.Enabled = False 'Disable Data Log Timer
+        CurrentTextBox.Text = "Stopped"
+        AnalogFinalTextBox.Text = "Stopped"
+        IterationTextBox.Text = "0" 'Set iteration count to 0
     End Sub
     Private Sub SaveToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles SaveToolStripMenuItem.Click
-
+        Try
+            For Each port In SerialPort.GetPortNames()
+                COMPort_ComboBox.Items.Add(port)
+            Next
+            COMPort_ComboBox.SelectedIndex = 0
+        Catch ex As Exception
+            MessageBox.Show("No COM Ports found. Please connect the Q@ Board and refresh")
+        End Try
     End Sub
     Private Sub ExitToolStripMenuItem_Click(sender As Object, e As EventArgs) Handles ExitToolStripMenuItem.Click
         SerialPort.Close() 'Close Serial Port
-        Dim path As String = "AnalogDataLog.log"
-        FileOpen(1, path, OpenMode.Append)
-        PrintLine(1, $"Program Closed")
-        FileClose(1)
         Me.Close()
     End Sub
 End Class
